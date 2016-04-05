@@ -1,9 +1,36 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title></title>
-</head>
-<body>
+    <head>
+        <title></title>
+    </head>
+    <body>
+        <h1>Calendar</h1>
+        <hr/>
 
-</body>
+        <form>
+            <label for="startDate">Start Date:</label>
+            <input type="date" id="startDate"/>
+
+            <br/>
+
+            <label for="numberOfDays">Number Of Days:</label>
+            <input type="number" id="numberOfDays" min="1"/>
+
+            <br/>
+
+            <label for="countryCode">Coutry Code:</label>
+            <input type="text" id="countryCode"/>
+
+            <br/>
+
+            <button type="button" onclick="generateCalendars()">Generate Calendars</button>
+        </form>
+
+        <hr/>
+
+        <div id="generatedCalendars">
+        </div>
+
+        <script src="js/calendar.js"></script>
+    </body>
 </html>
