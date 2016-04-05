@@ -9,6 +9,27 @@ var days = [
     6,
 ]
 
+function getHolidays(month, startDate, numberOfDays, countryCode, callback){
+    $.ajax({
+      url: "http://holidayapi.com/v1/holidays",
+      data: {
+        country: countryCode,
+        year: month.getFullYear(),
+        month: month.getMonth() + 1 // +1 because javascript likes to break convention
+      },
+      success: function(response){
+        var holidays = response.holidays;
+        callback(month, startDate, numberOfDays, holidays);
+      },
+      error: function(jqXHR, textStatus, errorThrown){
+        console.log("status " + textStatus);
+        document.getElementById("errors").innerHTML = "Failed to get holidays. Probably because of CORS. Ignoring them.";
+        var holidays = [];
+        callback(month, startDate, numberOfDays, holidays);
+      }
+    });
+}
+
 function pad(number, length){
     var str = "" + number
     while (str.length < length) {
@@ -36,9 +57,6 @@ function monthName(month){
     return monthNames[month.getMonth()]; 
 }
 
-function holidays(month){
-    return [];
-}
 
 function requiredMonths(startDate, numberOfDays){
     // Returns all the months at will need to be rendered, starting
@@ -50,7 +68,6 @@ function requiredMonths(startDate, numberOfDays){
     // outside of this function
 
     var startDate = new Date(startDate);
-    console.log(startDate);
 
     var months = [];
 
@@ -84,11 +101,8 @@ function renderCalendar(month, startDate, numberOfDays){
     var maxDate = new Date(startDate);
     maxDate.setDate(maxDate.getDate() + numberOfDays - 1);
 
-    console.log(minDate);
-    console.log(maxDate);
-
+    // save the month that we start on
     var startMonth = month.getMonth(); 
-    // saves the month that we start on
     // this will change later on, so we need to know what it is when it starts.
 
     var html = "";
@@ -169,6 +183,12 @@ function generateCalendars(){
     document.getElementById("generatedCalendars").innerHTML = "";
 
     for (var i = 0; i < months.length; i++){
-        renderCalendar(months[i], startDate, numberOfDays);
+        // does an ajax call to get the holidays from the api, and then
+        // when it finishes, it calls the renderCalendar() callback with
+        // the required parameters. On a slow connection, calendars will
+        // be seen popping into existence one by one
+
+        getHolidays(months[i], startDate, numberOfDays, countryCode, renderCalendar);
+
     }
 }
